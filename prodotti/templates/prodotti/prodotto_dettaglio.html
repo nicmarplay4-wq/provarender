@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ prodotto.nome }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'prodotti:homepage' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'prodotti:catalogo' %}">Catalogo</a></li>
+            <li class="breadcrumb-item active">{{ prodotto.nome }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-6">
+            {% if prodotto.immagini.all %}
+            <div id="carouselProdotto" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% for immagine in prodotto.immagini.all %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ immagine.file_immagine.url }}" class="d-block w-100" alt="{{ immagine.alt_text }}" style="height: 500px; object-fit: cover;">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if prodotto.immagini.count > 1 %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselProdotto" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselProdotto" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 500px;">
+                <i class="bi bi-image" style="font-size: 8rem; color: white;"></i>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <span class="badge bg-info text-dark mb-2">{{ prodotto.categoria.nome }}</span>
+            <h1>{{ prodotto.nome }}</h1>
+            <p class="lead">{{ prodotto.descrizione }}</p>
+            
+            {% if prodotto.specifiche_tecniche %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <strong>Specifiche Tecniche</strong>
+                </div>
+                <div class="card-body">
+                    {{ prodotto.specifiche_tecniche|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+
+            <h2 class="text-primary">€ {{ prodotto.prezzo_base }}</h2>
+            
+            <div class="mt-4">
+                <a href="{% url 'clienti:prenota' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-calendar-check"></i> Prenota Consulenza
+                </a>
+            </div>
+
+            <div class="mt-4">
+                <p><i class="bi bi-check-circle text-success"></i> Disponibilità immediata</p>
+                <p><i class="bi bi-truck text-success"></i> Consegna e installazione incluse</p>
+                <p><i class="bi bi-shield-check text-success"></i> Garanzia 2 anni</p>
+            </div>
+        </div>
+    </div>
+
+    {% if prodotti_correlati %}
+    <div class="mt-5">
+        <h3>Prodotti Correlati</h3>
+        <div class="row">
+            {% for prodotto_correlato in prodotti_correlati %}
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    {% if prodotto_correlato.get_immagine_principale %}
+                    <img src="{{ prodotto_correlato.get_immagine_principale }}" class="card-img-top" alt="{{ prodotto_correlato.nome }}" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="card-title">{{ prodotto_correlato.nome }}</h6>
+                        <p class="text-primary">€ {{ prodotto_correlato.prezzo_base }}</p>
+                        <a href="{% url 'prodotti:dettaglio' prodotto_correlato.slug %}" class="btn btn-sm btn-outline-primary">Dettagli</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

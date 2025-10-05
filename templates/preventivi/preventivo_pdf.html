@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Preventivo {{ preventivo.numero_preventivo }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #667eea;
+            margin: 0;
+        }
+        .info-box {
+            margin-bottom: 20px;
+        }
+        .info-box h3 {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th {
+            background-color: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .totale {
+            text-align: right;
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 9pt;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PREVENTIVO</h1>
+        <p style="font-size: 14pt; margin: 5px 0;">{{ preventivo.numero_preventivo }}</p>
+        <p>Data: {{ preventivo.data_creazione|date:"d/m/Y" }}</p>
+    </div>
+
+    <div class="info-box">
+        <h3>Dati Cliente</h3>
+        <p>
+            <strong>Nome:</strong> {{ preventivo.cliente.get_nome_completo }}<br>
+            <strong>Email:</strong> {{ preventivo.cliente.email }}<br>
+            <strong>Telefono:</strong> {{ preventivo.cliente.telefono }}<br>
+            {% if preventivo.cliente.indirizzo %}
+            <strong>Indirizzo:</strong> {{ preventivo.cliente.indirizzo }}, {{ preventivo.cliente.cap }} {{ preventivo.cliente.citta }}
+            {% endif %}
+        </p>
+    </div>
+
+    <h3>Dettaglio Prodotti</h3>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50%;">Prodotto</th>
+                <th style="width: 15%; text-align: center;">Quantità</th>
+                <th style="width: 15%; text-align: right;">Prezzo Unit.</th>
+                <th style="width: 20%; text-align: right;">Totale</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for voce in preventivo.voci.all %}
+            <tr>
+                <td>
+                    <strong>{{ voce.prodotto.nome }}</strong><br>
+                    <small>{{ voce.prodotto.categoria.nome }}</small>
+                    {% if voce.note %}
+                    <br><em>{{ voce.note }}</em>
+                    {% endif %}
+                </td>
+                <td style="text-align: center;">{{ voce.quantita }}</td>
+                <td style="text-align: right;">€ {{ voce.prezzo_unitario_finale }}</td>
+                <td style="text-align: right;">€ {{ voce.get_totale }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if preventivo.sconto_percentuale > 0 %}
+    <p style="text-align: right; font-size: 12pt;">
+        <strong>Subtotale:</strong> € {{ preventivo.calcola_totale|add:preventivo.sconto_percentuale }}<br>
+        <strong>Sconto {{ preventivo.sconto_percentuale }}%:</strong> - € {{ preventivo.sconto_percentuale }}<br>
+    </p>
+    {% endif %}
+
+    <div class="totale">
+        TOTALE: € {{ preventivo.totale_stimato }}
+    </div>
+
+    {% if preventivo.note %}
+    <div class="info-box">
+        <h3>Note</h3>
+        <p>{{ preventivo.note|linebreaks }}</p>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <p>
+            <strong>Negozio Cucine</strong><br>
+            Via Example 123, 00100 Roma<br>
+            Tel: +39 123 456 7890 | Email: info@negoziocucine.it<br>
+            P.IVA: 12345678900
+        </p>
+        <p style="margin-top: 15px;">
+            Il presente preventivo ha validità di <strong>{{ preventivo.validita_giorni }} giorni</strong> dalla data di emissione.
+        </p>
+    </div>
+</body>
+</html>

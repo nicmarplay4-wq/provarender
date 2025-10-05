@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Catalogo Prodotti{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Catalogo Prodotti</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="btn-group" role="group">
+                <a href="{% url 'prodotti:catalogo' %}" 
+                   class="btn {% if not categoria_selezionata %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    Tutte
+                </a>
+                {% for categoria in categorie %}
+                <a href="{% url 'prodotti:catalogo' %}?categoria={{ categoria.slug }}" 
+                   class="btn {% if categoria_selezionata == categoria.slug %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    {{ categoria.nome }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for prodotto in prodotti %}
+        <div class="col-md-4 mb-4">
+            <div class="card card-prodotto h-100">
+                {% if prodotto.get_immagine_principale %}
+                    <img src="{{ prodotto.get_immagine_principale }}" class="card-img-top" alt="{{ prodotto.nome }}" style="height: 250px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <i class="bi bi-image" style="font-size: 4rem; color: white;"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <span class="badge bg-info text-dark mb-2">{{ prodotto.categoria.nome }}</span>
+                    <h5 class="card-title">{{ prodotto.nome }}</h5>
+                    <p class="card-text">{{ prodotto.descrizione|truncatewords:20 }}</p>
+                    <p class="fw-bold text-primary fs-5">€ {{ prodotto.prezzo_base }}</p>
+                    <a href="{% url 'prodotti:dettaglio' prodotto.slug %}" class="btn btn-primary">
+                        Dettagli
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <p class="lead">Nessun prodotto disponibile.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if categoria_selezionata %}&categoria={{ categoria_selezionata }}{% endif %}">Prima</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if categoria_selezionata %}&categoria={{ categoria_selezionata }}{% endif %}">Precedente</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }} di {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if categoria_selezionata %}&categoria={{ categoria_selezionata }}{% endif %}">Successiva</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if categoria_selezionata %}&categoria={{ categoria_selezionata }}{% endif %}">Ultima</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold">Benvenuto nel Nostro Showroom</h1>
+        <p class="lead">Scopri le migliori cucine per la tua casa</p>
+        <a href="{% url 'prodotti:catalogo' %}" class="btn btn-light btn-lg mt-3">
+            Esplora il Catalogo
+        </a>
+        <a href="{% url 'clienti:prenota' %}" class="btn btn-outline-light btn-lg mt-3 ms-2">
+            Prenota Consulenza
+        </a>
+    </div>
+</div>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Cucine in Evidenza</h2>
+    <div class="row">
+        {% for prodotto in prodotti_evidenza %}
+        <div class="col-md-4 mb-4">
+            <div class="card card-prodotto h-100">
+                {% if prodotto.get_immagine_principale %}
+                    <img src="{{ prodotto.get_immagine_principale }}" class="card-img-top" alt="{{ prodotto.nome }}" style="height: 250px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <i class="bi bi-image" style="font-size: 4rem; color: white;"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ prodotto.nome }}</h5>
+                    <p class="card-text">{{ prodotto.descrizione|truncatewords:15 }}</p>
+                    <p class="fw-bold text-primary">€ {{ prodotto.prezzo_base }}</p>
+                    <a href="{% url 'prodotti:dettaglio' prodotto.slug %}" class="btn btn-primary">
+                        Scopri di più
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <p>Nessun prodotto in evidenza al momento.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Le Nostre Categorie</h2>
+        <div class="row">
+            {% for categoria in categorie %}
+            <div class="col-md-3 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-grid-3x3-gap" style="font-size: 3rem; color: #667eea;"></i>
+                        <h5 class="card-title mt-3">{{ categoria.nome }}</h5>
+                        <a href="{% url 'prodotti:catalogo' %}?categoria={{ categoria.slug }}" class="btn btn-sm btn-outline-primary">
+                            Esplora
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
